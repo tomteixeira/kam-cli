@@ -11,10 +11,14 @@ import { getSitesCommand } from './connected/sites/get-all';
 import { getSiteCommand } from './connected/sites/get-one';
 import { createSiteCommand } from './connected/sites/create';
 import { deleteSiteCommand } from './connected/sites/delete';
+import { duplicateTrackingScriptToAllCommand } from './connected/sites/duplicate-tracking-script-all';
+import { duplicateTrackingScriptCommand } from './connected/sites/duplicate-tracking-script';
+import { getTrackingScriptCommand } from './connected/sites/get-tracking-script';
 import { getGoalsCommand } from './connected/goals/get-all';
 import { getGoalCommand } from './connected/goals/get-one';
 import { createGoalCommand } from './connected/goals/create';
 import { deleteGoalCommand } from './connected/goals/delete';
+import { duplicateGoalToAllCommand } from './connected/goals/duplicate-all';
 import { getCustomDataListCommand } from './connected/custom-data/get-all';
 import { getCustomDataCommand } from './connected/custom-data/get-one';
 import { createCustomDataCommand } from './connected/custom-data/create';
@@ -25,6 +29,7 @@ import { createExperimentCommand } from './connected/experiments/create';
 import { deleteExperimentCommand } from './connected/experiments/delete';
 import { updateExperimentStatusCommand } from './connected/experiments/update-status';
 import { restoreExperimentCommand } from './connected/experiments/restore';
+import { duplicateSegmentCommand } from './connected/segments/duplicate';
 
 // Registry for commands available only when connected
 const connectedCommands: Record<string, (token: string, args: string[]) => Promise<void>> = {
@@ -39,10 +44,14 @@ const connectedCommands: Record<string, (token: string, args: string[]) => Promi
         console.log('  - sites:get <id>: Get site details');
         console.log('  - sites:create: Create a new site');
         console.log('  - sites:delete <id>: Delete a site');
+        console.log('  - sites:get-script <siteCode>: Get global script');
+        console.log('  - sites:duplicate-script <sourceSiteCode> <targetSiteCodes>: Duplicate global script');
+        console.log('  - sites:duplicate-script-all <sourceSiteCode>: Duplicate global script to all sites');
         console.log('  - goals:getall: List all goals');
         console.log('  - goals:get <id>: Get goal details');
         console.log('  - goals:create: Create a new goal');
         console.log('  - goals:delete <id>: Delete a goal');
+        console.log('  - goals:duplicate-all <goalId>: Duplicate goal to all sites');
         console.log('  - cd:getall: List all custom data');
         console.log('  - cd:get <id>: Get custom data details');
         console.log('  - cd:create: Create a new custom data');
@@ -52,6 +61,7 @@ const connectedCommands: Record<string, (token: string, args: string[]) => Promi
         console.log('  - xp:create: Create a new experiment');
         console.log('  - xp:delete <id>: Delete an experiment');
         console.log('  - xp:update-status <id>: Update experiment status');
+        console.log('  - segments:duplicate <segmentId> <siteCodes>: Duplicate segment to sites');
         // 'xp:restore' hidden intentionally as per requirements
         console.log('');
     },
@@ -62,10 +72,14 @@ const connectedCommands: Record<string, (token: string, args: string[]) => Promi
     'sites:get': async (token, args) => getSiteCommand(token, args),
     'sites:create': async (token) => createSiteCommand(token),
     'sites:delete': async (token, args) => deleteSiteCommand(token, args),
+    'sites:get-script': async (token, args) => getTrackingScriptCommand(token, args),
+    'sites:duplicate-script': async (token, args) => duplicateTrackingScriptCommand(token, args),
+    'sites:duplicate-script-all': async (token, args) => duplicateTrackingScriptToAllCommand(token, args),
     'goals:getall': async (token) => getGoalsCommand(token),
     'goals:get': async (token, args) => getGoalCommand(token, args),
     'goals:create': async (token) => createGoalCommand(token),
     'goals:delete': async (token, args) => deleteGoalCommand(token, args),
+    'goals:duplicate-all': async (token, args) => duplicateGoalToAllCommand(token, args),
     'cd:getall': async (token) => getCustomDataListCommand(token),
     'cd:get': async (token, args) => getCustomDataCommand(token, args),
     'cd:create': async (token) => createCustomDataCommand(token),
@@ -76,6 +90,7 @@ const connectedCommands: Record<string, (token: string, args: string[]) => Promi
     'xp:delete': async (token, args) => deleteExperimentCommand(token, args),
     'xp:update-status': async (token, args) => updateExperimentStatusCommand(token, args),
     'xp:restore': async (token, args) => restoreExperimentCommand(token, args),
+    'segments:duplicate': async (token, args) => duplicateSegmentCommand(token, args),
 };
 
 // Recursive helper to manage RL lifecycle around Inquirer usage

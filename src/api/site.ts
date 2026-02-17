@@ -10,6 +10,7 @@ export interface Site {
   siteType?: 'ECOMMERCE' | 'MEDIA' | 'OTHER';
   type?: 'SITE' | 'SITE_JS' | 'SITE_SDK' | 'APPLICATION';
   mainGoal?: number;
+  trackingScript?: string;
   dateCreated?: string;
   domainNames?: string[];
   // Add other fields as needed from documentation, these are the core ones
@@ -27,6 +28,7 @@ export interface CreateSiteDto {
 
 export interface UpdateSiteDto {
   name?: string;
+  trackingScript?: string;
   // Add other partial fields
 }
 
@@ -45,20 +47,9 @@ export const getSite = async (token: string, id: number): Promise<Site> => {
 };
 
 export const getSiteByCode = async (token: string, code: string): Promise<Site> => {
-  const response = await axios.get<Site>(`${BASE_URL}`, {
-    params: { code }, // Assuming API supports filtering by code or has specific endpoint logic not fully detailed in generic REST pattern, usually /sites?code=X or specific endpoint. 
-    // NOTE: Documentation says "Get a site by code" often implies specific path or query param. 
-    // The provided link list had "Get a site by code". If it's a separate path like /sites/code/:code check docs.
-    // Based on common REST patterns and provided list, often it's a filter. 
-    // Let's assume standard GET /sites?code=XYZ returns list or single. 
-    // IF there is a specific endpoint /sites/code/{code}, we use that.
-    // Looking at typical Kameleoon API structure, it's likely GET /sites?code=... or GET /sites/code/...
-    // I will implement as GET /sites with filter for now unless I see specific path in docs content which I can't fully read all deeply.
-    // Actually, looking at "Get a site by code" in menu, usually /sites/code/{code}. Let's try that pattern if standard ID fails or use query param.
+  const response = await axios.get<Site>(`${BASE_URL}/byCode/${encodeURIComponent(code)}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  // If it returns array
-  if (Array.isArray(response.data)) return response.data[0];
   return response.data;
 };
 
@@ -91,3 +82,6 @@ export const partialUpdateSite = async (token: string, id: number, data: UpdateS
   return response.data;
 };
 
+export const updateSiteTrackingScript = async (token: string, id: number, trackingScript: string): Promise<Site> => {
+  return partialUpdateSite(token, id, { trackingScript });
+};

@@ -10,6 +10,7 @@ export interface Goal {
   siteId: number;
   description?: string;
   hasMultipleConversions?: boolean;
+  params?: Record<string, unknown>;
   dateCreated?: string;
   dateModified?: string;
   // Add other fields as needed
@@ -21,8 +22,7 @@ export interface CreateGoalDto {
   siteId: number;
   hasMultipleConversions?: boolean;
   description?: string;
-  // Params can be complex depending on type, simplified here for initial CLI use
-  // params?: any; 
+  params?: Record<string, unknown>;
 }
 
 export interface UpdateGoalDto {

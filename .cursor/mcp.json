@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "kameleoon": {
+      "command": "node",
+      "args": ["dist/mcp/server.js"],
+      "cwd": "/Users/tomtexeira/Documents/projet_cli_kam"
+    }
+  }
+}

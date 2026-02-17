@@ -10,8 +10,8 @@ export interface ClientCredentials {
 export class ConfigService {
   private envPath: string;
 
-  constructor() {
-    this.envPath = path.resolve(process.cwd(), '.env');
+  constructor(envPath?: string) {
+    this.envPath = envPath ?? path.resolve(process.cwd(), '.env');
     // Initial load
     dotenv.config({ path: this.envPath });
   }
