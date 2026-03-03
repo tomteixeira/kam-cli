@@ -30,6 +30,33 @@ import { deleteExperimentCommand } from './connected/experiments/delete';
 import { updateExperimentStatusCommand } from './connected/experiments/update-status';
 import { restoreExperimentCommand } from './connected/experiments/restore';
 import { duplicateSegmentCommand } from './connected/segments/duplicate';
+import { getSegmentsCommand } from './connected/segments/get-all';
+import { getSegmentCommand } from './connected/segments/get-one';
+import { createSegmentCommand } from './connected/segments/create';
+import { updateSegmentCommand } from './connected/segments/update';
+import { updateSegmentConditionCommand } from './connected/segments/update-condition';
+import { updateExperimentCommand } from './connected/experiments/update';
+import { getTargetingRulesCommand } from './connected/targeting-rules/get-all';
+import { getTargetingRuleCommand } from './connected/targeting-rules/get-one';
+import { createTargetingRuleCommand } from './connected/targeting-rules/create';
+import { updateTargetingRuleCommand } from './connected/targeting-rules/update';
+import { partialUpdateTargetingRuleCommand } from './connected/targeting-rules/partial-update';
+import { updateTargetingRuleForPersonalizationCommand } from './connected/targeting-rules/update-for-personalization';
+import { getVariationsCommand } from './connected/variations/get-all';
+import { getVariationCommand } from './connected/variations/get-one';
+import { createVariationCommand } from './connected/variations/create';
+import { deleteVariationCommand } from './connected/variations/delete';
+import { updateVariationCommand } from './connected/variations/update';
+import { partialUpdateVariationCommand } from './connected/variations/partial-update';
+import { searchVariationsCommand } from './connected/variations/search';
+import { getFeatureFlagsCommand } from './connected/feature-flags/get-all';
+import { getFeatureFlagCommand } from './connected/feature-flags/get-one';
+import { createFeatureFlagCommand } from './connected/feature-flags/create';
+import { searchFeatureFlagsCommand } from './connected/feature-flags/search';
+import { updateFeatureFlagCommand } from './connected/feature-flags/update';
+import { duplicateFeatureFlagCommand } from './connected/feature-flags/duplicate';
+import { updateFeatureFlagRuleCommand } from './connected/feature-flags/update-rule';
+import { updateFeatureFlagEnvironmentCommand } from './connected/feature-flags/update-env';
 
 // Registry for commands available only when connected
 const connectedCommands: Record<string, (token: string, args: string[]) => Promise<void>> = {
@@ -61,7 +88,34 @@ const connectedCommands: Record<string, (token: string, args: string[]) => Promi
         console.log('  - xp:create: Create a new experiment');
         console.log('  - xp:delete <id>: Delete an experiment');
         console.log('  - xp:update-status <id>: Update experiment status');
+        console.log('  - xp:update <id>: Partial update experiment fields');
+        console.log('  - tr:getall: List all targeting rules');
+        console.log('  - tr:get <id>: Get targeting rule details');
+        console.log('  - tr:create: Create a new targeting rule');
+        console.log('  - tr:update <id>: Full update a targeting rule');
+        console.log('  - tr:patch <id>: Partial update a targeting rule');
+        console.log('  - tr:update-perso <ruleId> <persoId>: Update targeting rule for personalization');
+        console.log('  - segments:getall: List all segments');
+        console.log('  - segments:get <id>: Get segment details');
+        console.log('  - segments:create: Create a new segment');
+        console.log('  - segments:update <id>: Update a segment (partial or full)');
+        console.log('  - segments:update-condition <segmentId> <conditionId>: Update a segment condition');
         console.log('  - segments:duplicate <segmentId> <siteCodes>: Duplicate segment to sites');
+        console.log('  - var:getall: List all variations');
+        console.log('  - var:get <id>: Get variation details');
+        console.log('  - var:create: Create a new variation');
+        console.log('  - var:delete <id>: Delete a variation');
+        console.log('  - var:update <id>: Full update a variation');
+        console.log('  - var:patch <id>: Partial update a variation');
+        console.log('  - var:search: Search variations with filters');
+        console.log('  - ff:getall: List all feature flags');
+        console.log('  - ff:get <siteCode> <featureKey>: Get feature flag details');
+        console.log('  - ff:create: Create a new feature flag');
+        console.log('  - ff:search: Search feature flags');
+        console.log('  - ff:update <siteCode> <featureKey>: Update a feature flag');
+        console.log('  - ff:duplicate <siteCode> <featureKey>: Duplicate a feature flag');
+        console.log('  - ff:update-rule <ruleId>: Update a rollout rule by ID');
+        console.log('  - ff:update-env <siteCode> <featureKey> <envKey>: Update feature flag environment');
         // 'xp:restore' hidden intentionally as per requirements
         console.log('');
     },
@@ -90,7 +144,34 @@ const connectedCommands: Record<string, (token: string, args: string[]) => Promi
     'xp:delete': async (token, args) => deleteExperimentCommand(token, args),
     'xp:update-status': async (token, args) => updateExperimentStatusCommand(token, args),
     'xp:restore': async (token, args) => restoreExperimentCommand(token, args),
+    'xp:update': async (token, args) => updateExperimentCommand(token, args),
+    'tr:getall': async (token) => getTargetingRulesCommand(token),
+    'tr:get': async (token, args) => getTargetingRuleCommand(token, args),
+    'tr:create': async (token) => createTargetingRuleCommand(token),
+    'tr:update': async (token, args) => updateTargetingRuleCommand(token, args),
+    'tr:patch': async (token, args) => partialUpdateTargetingRuleCommand(token, args),
+    'tr:update-perso': async (token, args) => updateTargetingRuleForPersonalizationCommand(token, args),
+    'segments:getall': async (token) => getSegmentsCommand(token),
+    'segments:get': async (token, args) => getSegmentCommand(token, args),
+    'segments:create': async (token) => createSegmentCommand(token),
+    'segments:update': async (token, args) => updateSegmentCommand(token, args),
+    'segments:update-condition': async (token, args) => updateSegmentConditionCommand(token, args),
     'segments:duplicate': async (token, args) => duplicateSegmentCommand(token, args),
+    'var:getall': async (token) => getVariationsCommand(token),
+    'var:get': async (token, args) => getVariationCommand(token, args),
+    'var:create': async (token) => createVariationCommand(token),
+    'var:delete': async (token, args) => deleteVariationCommand(token, args),
+    'var:update': async (token, args) => updateVariationCommand(token, args),
+    'var:patch': async (token, args) => partialUpdateVariationCommand(token, args),
+    'var:search': async (token) => searchVariationsCommand(token),
+    'ff:getall': async (token) => getFeatureFlagsCommand(token),
+    'ff:get': async (token, args) => getFeatureFlagCommand(token, args),
+    'ff:create': async (token) => createFeatureFlagCommand(token),
+    'ff:search': async (token) => searchFeatureFlagsCommand(token),
+    'ff:update': async (token, args) => updateFeatureFlagCommand(token, args),
+    'ff:duplicate': async (token, args) => duplicateFeatureFlagCommand(token, args),
+    'ff:update-rule': async (token, args) => updateFeatureFlagRuleCommand(token, args),
+    'ff:update-env': async (token, args) => updateFeatureFlagEnvironmentCommand(token, args),
 };
 
 // Recursive helper to manage RL lifecycle around Inquirer usage

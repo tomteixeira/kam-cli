@@ -17,6 +17,9 @@ import { registerCustomDataTools } from './tools/custom-data.tools';
 import { registerSegmentTools } from './tools/segments.tools';
 import { registerAccountTools } from './tools/accounts.tools';
 import { registerBackupTools } from './tools/backups.tools';
+import { registerTargetingRuleTools } from './tools/targeting-rules.tools';
+import { registerVariationTools } from './tools/variations.tools';
+import { registerFeatureFlagTools } from './tools/feature-flags.tools';
 
 const startServer = async (): Promise<void> => {
   const server = new McpServer({
@@ -36,6 +39,9 @@ const startServer = async (): Promise<void> => {
   registerSegmentTools(server, tokenManager);
   registerAccountTools(server, tokenManager);
   registerBackupTools(server, tokenManager);
+  registerTargetingRuleTools(server, tokenManager);
+  registerVariationTools(server, tokenManager);
+  registerFeatureFlagTools(server, tokenManager);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

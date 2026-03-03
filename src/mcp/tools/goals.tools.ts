@@ -41,21 +41,40 @@ export const registerGoalTools = (server: McpServer, tokenManager: TokenManager)
 
   server.tool(
     'kameleoon_create_goal',
-    'Create a new goal (conversion tracking objective) on a specific site.',
+    'Create a new goal (conversion tracking objective) on a specific site. IMPORTANT: hasMultipleConversions is required. For goal types CLICK, URL, SCROLL, PAGE_VIEWS, TIME_SPENT you must provide the params object with type-specific fields (e.g. for URL: {matchString: "/checkout", matchType: "CONTAINS"}).',
     {
       name: z.string().describe('Name of the goal'),
       type: z.enum(GOAL_TYPES).describe('Type of conversion tracking'),
       siteId: z.number().describe('The site ID this goal belongs to'),
       hasMultipleConversions: z
         .boolean()
-        .optional()
-        .describe('Whether the goal allows multiple conversions per visitor'),
+        .describe('REQUIRED. Whether the goal allows multiple conversions per visitor'),
       description: z.string().optional().describe('Description of the goal'),
+      params: z
+        .record(z.string(), z.unknown())
+        .optional()
+        .describe(
+          'Type-specific parameters. For URL/CLICK: {matchString, matchType (CONTAINS|CORRESPONDS_EXACTLY|REGULAR_EXPRESSION)}. For TIME_SPENT/SCROLL/PAGE_VIEWS: check Kameleoon docs for required fields.',
+        ),
     },
-    async ({ name, type, siteId, hasMultipleConversions, description }) => {
-      const token = await tokenManager.getToken();
-      const goal = await createGoal(token, { name, type, siteId, hasMultipleConversions, description });
-      return { content: [{ type: 'text', text: JSON.stringify(goal, null, 2) }] };
+    async ({ name, type, siteId, hasMultipleConversions, description, params }) => {
+      try {
+        const token = await tokenManager.getToken();
+        const payload: CreateGoalDto = { name, type, siteId, hasMultipleConversions, description };
+        if (params) {
+          payload.params = params;
+        }
+        const goal = await createGoal(token, payload);
+        return { content: [{ type: 'text', text: JSON.stringify(goal, null, 2) }] };
+      } catch (error: any) {
+        const details = error.response?.data
+          ? JSON.stringify(error.response.data, null, 2)
+          : error.message;
+        return {
+          content: [{ type: 'text', text: `Failed to create goal: ${details}` }],
+          isError: true,
+        };
+      }
     },
   );
 

@@ -12,10 +12,32 @@ export interface Experiment {
   siteCode?: string;
   dateCreated?: string;
   dateModified?: string;
+  dateStarted?: string;
+  dateEnded?: string;
+  dateStatusModified?: string;
   baseURL?: string;
   trafficAllocationMethod?: 'CONTEXTUAL_BANDIT' | 'MANUAL' | 'MULTI_ARMED_BANDIT';
   variations?: number[];
   goals?: number[];
+  mainGoalId?: number;
+  tags?: string[];
+  commonCssCode?: string;
+  commonJavaScriptCode?: string;
+  globalScript?: string;
+  deviations?: Record<string, number>;
+  isArchived?: boolean;
+  isMultipleTestingCorrection?: boolean;
+  createdBy?: number;
+  targetingRule?: {
+    id?: number;
+    segmentConfiguration?: string;
+    segmentId?: number;
+    siteId: number;
+    targetingConfigurationParam?: string;
+    triggerConfiguration?: string;
+    triggerId?: number;
+  };
+  trackingTools?: Array<Record<string, unknown>>;
 }
 
 export interface CreateExperimentDto {
@@ -28,11 +50,31 @@ export interface CreateExperimentDto {
   trafficAllocationMethod?: 'CONTEXTUAL_BANDIT' | 'MANUAL' | 'MULTI_ARMED_BANDIT';
 }
 
-export interface UpdateExperimentDto {
+export interface PartialUpdateExperimentDto {
   name?: string;
   description?: string;
   status?: string;
   baseURL?: string;
+  commonCssCode?: string;
+  commonJavaScriptCode?: string;
+  globalScript?: string;
+  goals?: number[];
+  mainGoalId?: number;
+  tags?: string[];
+  deviations?: Record<string, number>;
+  respoolTime?: Record<string, number>;
+  trafficAllocationMethod?: 'CONTEXTUAL_BANDIT' | 'MANUAL' | 'MULTI_ARMED_BANDIT';
+  isMultipleTestingCorrection?: boolean;
+  targetingRule?: {
+    segmentConfiguration?: string;
+    segmentId?: number;
+    siteId: number;
+    targetingConfigurationParam?: string;
+    triggerConfiguration?: string;
+    triggerId?: number;
+  };
+  trackingTools?: Array<Record<string, unknown>>;
+  identificationKey?: string;
 }
 
 export const getAllExperiments = async (token: string): Promise<Experiment[]> => {
@@ -62,7 +104,7 @@ export const deleteExperiment = async (token: string, id: number): Promise<void>
   });
 };
 
-export const partialUpdateExperiment = async (token: string, id: number, data: UpdateExperimentDto): Promise<Experiment> => {
+export const partialUpdateExperiment = async (token: string, id: number, data: PartialUpdateExperimentDto): Promise<Experiment> => {
   const params: any = {};
   const body = { ...data };
 

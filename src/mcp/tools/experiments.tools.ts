@@ -8,6 +8,7 @@ import {
   deleteExperiment,
   partialUpdateExperiment,
   restartExperiment,
+  PartialUpdateExperimentDto,
 } from '../../api/experiment';
 
 const EXPERIMENT_TYPES = ['AI', 'CLASSIC', 'DEVELOPER', 'FEATURE_FLAG', 'MVT', 'PROMPT', 'SDK_HYBRID'] as const;
@@ -93,6 +94,65 @@ export const registerExperimentTools = (server: McpServer, tokenManager: TokenMa
     async ({ experimentId, status }) => {
       const token = await tokenManager.getToken();
       const experiment = await partialUpdateExperiment(token, experimentId, { status });
+      return { content: [{ type: 'text', text: JSON.stringify(experiment, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    'kameleoon_partial_update_experiment',
+    'Partially update an experiment (PATCH). Update any subset of fields: name, description, baseURL, goals, tags, traffic allocation, CSS/JS code, targeting rule, etc. Does not change status (use kameleoon_update_experiment_status for that).',
+    {
+      experimentId: z.number().describe('The numeric ID of the experiment to update'),
+      name: z.string().optional().describe('New name'),
+      description: z.string().optional().describe('New description'),
+      baseURL: z.string().optional().describe('New base URL'),
+      goals: z.array(z.number()).optional().describe('Goal IDs to associate'),
+      mainGoalId: z.number().optional().describe('Main goal ID'),
+      tags: z.array(z.string()).optional().describe('Tags'),
+      trafficAllocationMethod: z
+        .enum(TRAFFIC_ALLOCATION_METHODS)
+        .optional()
+        .describe('Traffic allocation method'),
+      isMultipleTestingCorrection: z
+        .boolean()
+        .optional()
+        .describe('Enable multiple testing correction'),
+      commonCssCode: z.string().optional().describe('CSS code for all variations'),
+      commonJavaScriptCode: z.string().optional().describe('JS code for all variations'),
+      globalScript: z.string().optional().describe('Global script executed for this experiment'),
+      deviations: z
+        .record(z.string(), z.number())
+        .optional()
+        .describe('Traffic allocation per variation (key: variation ID or "origin", value: 0-1)'),
+      targetingRule: z
+        .object({
+          segmentConfiguration: z.string().optional(),
+          segmentId: z.number().optional(),
+          siteId: z.number(),
+          targetingConfigurationParam: z.string().optional(),
+          triggerConfiguration: z.string().optional(),
+          triggerId: z.number().optional(),
+        })
+        .optional()
+        .describe('Targeting rule configuration'),
+    },
+    async ({ experimentId, ...fields }) => {
+      const token = await tokenManager.getToken();
+      const payload: PartialUpdateExperimentDto = {};
+      if (fields.name !== undefined) payload.name = fields.name;
+      if (fields.description !== undefined) payload.description = fields.description;
+      if (fields.baseURL !== undefined) payload.baseURL = fields.baseURL;
+      if (fields.goals !== undefined) payload.goals = fields.goals;
+      if (fields.mainGoalId !== undefined) payload.mainGoalId = fields.mainGoalId;
+      if (fields.tags !== undefined) payload.tags = fields.tags;
+      if (fields.trafficAllocationMethod !== undefined) payload.trafficAllocationMethod = fields.trafficAllocationMethod;
+      if (fields.isMultipleTestingCorrection !== undefined) payload.isMultipleTestingCorrection = fields.isMultipleTestingCorrection;
+      if (fields.commonCssCode !== undefined) payload.commonCssCode = fields.commonCssCode;
+      if (fields.commonJavaScriptCode !== undefined) payload.commonJavaScriptCode = fields.commonJavaScriptCode;
+      if (fields.globalScript !== undefined) payload.globalScript = fields.globalScript;
+      if (fields.deviations !== undefined) payload.deviations = fields.deviations;
+      if (fields.targetingRule !== undefined) payload.targetingRule = fields.targetingRule;
+      const experiment = await partialUpdateExperiment(token, experimentId, payload);
       return { content: [{ type: 'text', text: JSON.stringify(experiment, null, 2) }] };
     },
   );
